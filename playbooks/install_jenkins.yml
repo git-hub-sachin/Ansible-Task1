@@ -1,0 +1,7 @@
+---
+- name: Install Jenkins with JDK 17
+  hosts: aws_ec2
+  become: true
+  roles:
+    - jenkins
+

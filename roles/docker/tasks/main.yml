@@ -1,0 +1,44 @@
+---
+- name: Update APT packages
+  apt:
+    update_cache: yes
+
+- name: Install prerequisites (ca-certificates and curl)
+  apt:
+    name:
+      - ca-certificates
+      - curl
+    state: present
+
+- name: Create directory for keyring
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Docker's GPG key
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+
+- name: Set correct permissions for the GPG key
+  file:
+    path: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+
+- name: Add Docker repository to APT sources
+  shell: |
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+  args:
+    creates: /etc/apt/sources.list.d/docker.list  # Prevents re-adding the repo if it already exists
+
+- name: Update APT packages with Docker repository
+  apt:
+    update_cache: yes
+
+- name: Install Docker
+  apt:
+    name: docker-ce
+    state: present
+
