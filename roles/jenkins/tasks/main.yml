@@ -1,4 +1,14 @@
 ---
+- name: Install required dependencies
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+    update_cache: yes
+
 - name: Add Jenkins GPG key
   ansible.builtin.get_url:
     url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
@@ -10,33 +20,16 @@
       deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/
     dest: /etc/apt/sources.list.d/jenkins.list
 
-- name: Install required dependencies
-  ansible.builtin.apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - gnupg
-    state: present
-    update_cache: yes
-
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
-
-- name: Install Jenkins
-  ansible.builtin.apt:
-    name: jenkins
-    state: present
 
 - name: Install JDK 17
   ansible.builtin.apt:
     name: openjdk-17-jdk
     state: present
 
-- name: Start Jenkins service
-  ansible.builtin.systemd:
+- name: Install Jenkins
+  ansible.builtin.apt:
     name: jenkins
-    state: started
-    enabled: yes
-
+    state: present
